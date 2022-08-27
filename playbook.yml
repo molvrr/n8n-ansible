@@ -1,0 +1,27 @@
+---
+- hosts: n8n
+  tasks:
+  - name: Docker installation
+    shell: curl -fsSL https://get.docker.com -o /home/ubuntu/get-docker.sh && sudo sh /home/ubuntu/get-docker.sh
+    become: yes
+
+  - name: Docker group creation
+    group:
+      name: docker
+      state: present
+    become: yes
+
+  - name: Current user permissions
+    user:
+      name: ubuntu
+      append: yes
+      groups: docker
+    become: yes
+
+  - name: Docker installation file deletion
+    file:
+      path: /home/ubuntu/get-docker.sh
+      state: absent
+
+  - name: Running n8n container
+    shell: docker run -d -it --rm --name n8n -p 80:5678 -v /home/ubuntu/.n8n:/home/node/.n8n n8nio/n8n
